@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WechatConnector", "WechatConnector\WechatConnector.csproj", "{4F46B239-A5E3-4A01-A6EE-9BB14E3C6C08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DimsumBot", "DimsumBot\DimsumBot.csproj", "{DF4AAE7E-CB71-4E4B-8272-88A4E135F344}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{1F50795F-FE57-4F07-BC67-B3495A26067B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DimsumBot.DirectLineClient", "DimsumBot.DirectLineClient\DimsumBot.DirectLineClient.csproj", "{75A609A4-84DE-4788-BE0A-53A2D838FA90}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DimsumBot.Core", "DimsumBot.Core\DimsumBot.Core.csproj", "{7910E0FD-F13F-4B0A-B6E3-198E37D9CBD1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DimsumBot.Model.Shared", "DimsumBot.Model.Shared\DimsumBot.Model.Shared.csproj", "{2660C017-E11B-4519-89F7-B65AE263A4D6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F46B239-A5E3-4A01-A6EE-9BB14E3C6C08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F46B239-A5E3-4A01-A6EE-9BB14E3C6C08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F46B239-A5E3-4A01-A6EE-9BB14E3C6C08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F46B239-A5E3-4A01-A6EE-9BB14E3C6C08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF4AAE7E-CB71-4E4B-8272-88A4E135F344}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF4AAE7E-CB71-4E4B-8272-88A4E135F344}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF4AAE7E-CB71-4E4B-8272-88A4E135F344}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF4AAE7E-CB71-4E4B-8272-88A4E135F344}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75A609A4-84DE-4788-BE0A-53A2D838FA90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75A609A4-84DE-4788-BE0A-53A2D838FA90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75A609A4-84DE-4788-BE0A-53A2D838FA90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75A609A4-84DE-4788-BE0A-53A2D838FA90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7910E0FD-F13F-4B0A-B6E3-198E37D9CBD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7910E0FD-F13F-4B0A-B6E3-198E37D9CBD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7910E0FD-F13F-4B0A-B6E3-198E37D9CBD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7910E0FD-F13F-4B0A-B6E3-198E37D9CBD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2660C017-E11B-4519-89F7-B65AE263A4D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2660C017-E11B-4519-89F7-B65AE263A4D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2660C017-E11B-4519-89F7-B65AE263A4D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2660C017-E11B-4519-89F7-B65AE263A4D6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{75A609A4-84DE-4788-BE0A-53A2D838FA90} = {1F50795F-FE57-4F07-BC67-B3495A26067B}
+		{7910E0FD-F13F-4B0A-B6E3-198E37D9CBD1} = {1F50795F-FE57-4F07-BC67-B3495A26067B}
+		{2660C017-E11B-4519-89F7-B65AE263A4D6} = {1F50795F-FE57-4F07-BC67-B3495A26067B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {46FB1B5B-4537-4C62-8BCD-684852568F9C}
+	EndGlobalSection
+EndGlobal
