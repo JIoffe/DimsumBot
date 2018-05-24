@@ -46,13 +46,11 @@ namespace WechatConnector.Client
         {
             try
             {
-                //This weird gymnastics was done as an effort to more closely match the boundary string generated in postman
-                var boundaryString = $"--------------------------{Guid.NewGuid().ToString().Replace("-", "")}";
-                if (boundaryString.Length > 52)
-                    boundaryString = boundaryString.Substring(0, 52);
+                var boundaryStr = Guid.NewGuid().ToString();
 
-                //file loads correctly
-                var fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read);
+                //Read all the bytes so we can close the stream quickly.
+                //Otherwise, we could also use File.Open and pass the stream directly
+                var fileBytes = await File.ReadAllBytesAsync(filePath);
 
                 //token is valid
                 var token = await GetOrRefreshToken();
@@ -62,26 +60,31 @@ namespace WechatConnector.Client
                 handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
 
                 using (var client = new HttpClient(handler))
-                using (var form = new MultipartFormDataContent(boundaryString))
+                using (var ms = new MemoryStream(fileBytes))
+                using (var request = new HttpRequestMessage())
+                using (var form = new MultipartFormDataContent(boundaryStr))
                 {
-                    client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("DimsumBot", "0.5"));
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
-                    client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue();
-                    client.DefaultRequestHeaders.CacheControl.NoCache = true;
-
                     var uriBuilder = new UriBuilder(_options.MediaUploadEndpoint);
                     uriBuilder.Query = $"access_token={token.AccessToken}&type={type}";
 
-                    //Quotes were added to better match the output of Postman
-                    var mediaContent = new StreamContent(fileStream);
+
+                    //Quotes were added to better match how Tencent will parse the request
+                    var mediaContent = new StreamContent(ms);
                     mediaContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
                     mediaContent.Headers.ContentDisposition.Name = "\"media\"";
                     mediaContent.Headers.ContentDisposition.FileName = $"\"{Path.GetFileName(filePath)}\"";
                     mediaContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
 
+                    //Replace Content-Type header with one that doesn't wrap the boundary in quotes - because Tencent won't parse it properly
+                    form.Headers.Remove("Content-Type");
+                    form.Headers.TryAddWithoutValidation("Content-Type", $"multipart/form-data; boundary={boundaryStr}");
                     form.Add(mediaContent);
 
-                    var response = await client.PostAsync(uriBuilder.Uri, form);
+                    request.Method = HttpMethod.Post;
+                    request.RequestUri = uriBuilder.Uri;
+                    request.Content = form;
+
+                    var response = await client.SendAsync(request);
                     response.EnsureSuccessStatusCode();
 
                     var json = await response.Content.ReadAsStringAsync();
