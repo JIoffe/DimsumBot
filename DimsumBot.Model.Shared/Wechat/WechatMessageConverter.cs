@@ -31,6 +31,10 @@ namespace DimsumBot.Model.Shared.Wechat
                     case WechatMessageTypes.RICH_MEDIA:
                         message.Articles = contentObject.GetValue("articles").ToObject<IEnumerable<WechatArticle>>();
                         break;
+                    case WechatMessageTypes.IMAGE:
+                    case WechatMessageTypes.VOICE:
+                        message.MediaId = (string)contentObject.GetValue("media_id");
+                        break;
                     default:
                         break;
                 }

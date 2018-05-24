@@ -25,6 +25,15 @@ namespace DimsumBot.Dialogs
         [LuisIntent("Greeting")]
         public async Task GreetingIntent(IDialogContext context, IAwaitable<IMessageActivity> item, LuisResult result)
         {
+            var stickerMessage = context.MakeMessage();
+            stickerMessage.Attachments.Add(new Attachment
+            {
+                ContentUrl = "https://dimsum-connector.azurewebsites.net/imgs/hi-sticker.png",
+                ContentType = "image/png",
+                Name = "hi-sticker.png"
+            });
+            await context.DispatchAsync(stickerMessage);
+
             var greetings = new string[]
             {
                 "Hello! Let's talk dim sum.",

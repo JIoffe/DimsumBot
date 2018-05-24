@@ -28,6 +28,8 @@ namespace WechatConnector.Client
 
         public async Task PostMessage(WechatMessage msg)
         {
+            await ValidateMessage(msg);
+
             var token = await GetOrRefreshToken();
             using (var client = new HttpClient())
             {
@@ -121,6 +123,33 @@ namespace WechatConnector.Client
                 _accessToken.IssueTime = DateTime.UtcNow;
 
                 return _accessToken;
+            }
+        }
+
+        private async Task ValidateMessage(WechatMessage message)
+        {
+            if(message.MessageType == WechatMessageTypes.IMAGE)
+            {
+                //If we're holding a URL instead of a WeChat media ID
+                //then we need to download the image and transfer to wechat
+                if (message.MediaId.Contains("http"))
+                {
+                    message.MediaId = await GetWebImageIdAsync(message.MediaId);
+                }
+            }
+        }
+
+        private async Task<string> GetWebImageIdAsync(string url)
+        {
+            var fileName = Path.GetFileName(url);
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(url);
+
+                var mimeType = response.Content.Headers.ContentType.MediaType;
+                var imageBytes = await response.Content.ReadAsByteArrayAsync();
+
+                return await UploadMedia(WechatMessageTypes.IMAGE, fileName, mimeType, imageBytes);
             }
         }
     }
