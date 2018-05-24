@@ -6,6 +6,6 @@ namespace WechatConnector.Client
     public interface IWechatClient
     {
         Task PostMessage(WechatMessage msg);
-        Task<string> UploadMedia(string type, string filePath);
+        Task<string> UploadMedia(string type, string fileName, string mimeType, byte[] mediaBytes);
     }
 }

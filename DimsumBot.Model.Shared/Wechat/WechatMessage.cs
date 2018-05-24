@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -53,6 +54,9 @@ namespace DimsumBot.Model.Shared.Wechat
         /// </summary>
         [XmlIgnore]
         public string MediaId { get; set; }
+
+        [XmlIgnore]
+        public IEnumerable<WechatArticle> Articles { get; set; }
 
         //Xml Serialized explicitly as CDATA
         [XmlElement("ToUserName")]

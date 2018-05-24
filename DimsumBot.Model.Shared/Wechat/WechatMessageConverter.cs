@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DimsumBot.Model.Shared.Wechat
@@ -24,8 +25,11 @@ namespace DimsumBot.Model.Shared.Wechat
                 var contentObject = (JObject)props.FirstOrDefault(p => p.Name.Equals(message.MessageType, StringComparison.InvariantCultureIgnoreCase)).Value;
                 switch (message.MessageType)
                 {
-                    case "text":
+                    case WechatMessageTypes.TEXT:
                         message.Content = (string)contentObject.GetValue("content");
+                        break;
+                    case WechatMessageTypes.RICH_MEDIA:
+                        message.Articles = contentObject.GetValue("articles").ToObject<IEnumerable<WechatArticle>>();
                         break;
                     default:
                         break;
@@ -47,19 +51,21 @@ namespace DimsumBot.Model.Shared.Wechat
 
             switch (msg.MessageType)
             {
-                case "text":
+                case WechatMessageTypes.TEXT:
                     contentObject.Add("content", msg.Content);
                     break;
-                case "image":
-                case "voice":
+                case WechatMessageTypes.IMAGE:
+                case WechatMessageTypes.VOICE:
                     contentObject.Add("media_id", msg.MediaId);
+                    break;
+                case WechatMessageTypes.RICH_MEDIA:
+                    contentObject.Add("articles", JToken.FromObject(msg.Articles ?? Enumerable.Empty<WechatArticle>()));
                     break;
                 default:
                     throw new ArgumentException($"Unsupported Message Type: {msg.MessageType}");
             }
 
             obj.Add(msg.MessageType, contentObject);
-
             obj.WriteTo(writer);
         }
     }

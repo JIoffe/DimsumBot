@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using DimsumBot.Extensions;
@@ -6,6 +7,7 @@ using DimsumBot.Model.Shared.Wechat;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DimsumBot.Dispatch
 {
@@ -32,12 +34,32 @@ namespace DimsumBot.Dispatch
         {
             using (var client = new HttpClient())
             {
+                //The connector could handle this conversion instead...
                 var wechatMessage = new WechatMessage
                 {
-                    MessageType = WechatMessageTypes.TEXT,
-                    Content = activity.Text,
                     ToUserName = context.GetChannelUserId()
                 };
+
+                var richCards = activity.Attachments?.Where(att => att.ContentType.Equals("application/vnd.microsoft.card.hero", System.StringComparison.InvariantCultureIgnoreCase));
+                if(richCards?.Count() > 0)
+                {
+                    wechatMessage.MessageType = WechatMessageTypes.RICH_MEDIA;
+                    wechatMessage.Articles = richCards.Select(att =>
+                    {
+                        var richCard = att.Content as HeroCard;
+                        return new WechatArticle
+                        {
+                            Title = richCard.Title,
+                            Description = richCard.Subtitle ?? richCard.Text,
+                            PicUrl = richCard.Images?.FirstOrDefault()?.Url ?? string.Empty
+                        };
+                    });
+                }
+                else
+                {
+                    wechatMessage.MessageType = WechatMessageTypes.TEXT;
+                    wechatMessage.Content = activity.Text;
+                }
 
                 var content = new StringContent(JsonConvert.SerializeObject(wechatMessage), Encoding.UTF8);
                 await client.PostAsync(_wechatOutgoingURI, content);

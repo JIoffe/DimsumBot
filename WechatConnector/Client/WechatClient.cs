@@ -42,17 +42,11 @@ namespace WechatConnector.Client
             }
         }
 
-        public async Task<string> UploadMedia(string type, string filePath)
+        public async Task<string> UploadMedia(string type, string fileName, string mimeType, byte[] mediaBytes)
         {
             try
             {
                 var boundaryStr = Guid.NewGuid().ToString();
-
-                //Read all the bytes so we can close the stream quickly.
-                //Otherwise, we could also use File.Open and pass the stream directly
-                var fileBytes = await File.ReadAllBytesAsync(filePath);
-
-                //token is valid
                 var token = await GetOrRefreshToken();
 
                 //Getting this to work before using a singleton httpclient
@@ -60,7 +54,7 @@ namespace WechatConnector.Client
                 handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
 
                 using (var client = new HttpClient(handler))
-                using (var ms = new MemoryStream(fileBytes))
+                using (var ms = new MemoryStream(mediaBytes))
                 using (var request = new HttpRequestMessage())
                 using (var form = new MultipartFormDataContent(boundaryStr))
                 {
@@ -72,8 +66,8 @@ namespace WechatConnector.Client
                     var mediaContent = new StreamContent(ms);
                     mediaContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
                     mediaContent.Headers.ContentDisposition.Name = "\"media\"";
-                    mediaContent.Headers.ContentDisposition.FileName = $"\"{Path.GetFileName(filePath)}\"";
-                    mediaContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+                    mediaContent.Headers.ContentDisposition.FileName = $"\"{fileName}\"";
+                    mediaContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
 
                     //Replace Content-Type header with one that doesn't wrap the boundary in quotes - because Tencent won't parse it properly
                     form.Headers.Remove("Content-Type");
@@ -92,7 +86,7 @@ namespace WechatConnector.Client
 
                     if (!string.IsNullOrWhiteSpace(mediaResponse.ErrorMessage))
                     {
-                        _logger.LogError("Could not upload media {0}: | Error Code: {1} | Message: {2}", filePath, mediaResponse.ErrorCode, mediaResponse.ErrorMessage);
+                        _logger.LogError("Could not upload media {0}: | Error Code: {1} | Message: {2}", fileName, mediaResponse.ErrorCode, mediaResponse.ErrorMessage);
                         return string.Empty;
                     }
 
@@ -100,7 +94,7 @@ namespace WechatConnector.Client
                 }
             }catch(Exception e)
             {
-                _logger.LogError(e, "Could not upload media {0}", filePath);
+                _logger.LogError(e, "Could not upload media {0}", fileName);
                 return string.Empty;
             }
         }

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DimsumBot.Model.Shared.Wechat
+﻿namespace DimsumBot.Model.Shared.Wechat
 {
     public static class WechatMessageTypes
     {
-        public readonly static string TEXT = "text";
-        public readonly static string IMAGE = "image";
+        public const string TEXT = "text";
+        public const string IMAGE = "image";
+        public const string RICH_MEDIA = "news";
+        public const string VOICE = "voice";
     }
 }

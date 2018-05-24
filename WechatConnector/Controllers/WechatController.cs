@@ -41,15 +41,6 @@ namespace WechatConnector.Controllers
             _logger = logger;
         }
 
-        [Route("testmedia")]
-        [HttpGet]
-        public async Task<IActionResult> TestImageUpload()
-        {
-            var imgPath = $"{_hostingEnvironment.WebRootPath}/imgs/star.png";
-            var mediaId = await _connector.UploadMedia(WechatMessageTypes.IMAGE, imgPath);
-
-            return Ok(mediaId);
-        }
         /// <summary>
         /// WeChat sends a GET request to verify that the bot code is configured correctly
         /// </summary>
@@ -154,18 +145,6 @@ namespace WechatConnector.Controllers
 
             try
             {
-                ////Test image sending
-                //var imgPath = $"{_hostingEnvironment.WebRootPath}/imgs/star.png";
-                //var mediaId = await _connector.UploadMedia(WechatMessageTypes.IMAGE, imgPath);
-
-                //var mediaMessage = new WechatMessage
-                //{
-                //    MessageType = WechatMessageTypes.IMAGE,
-                //    MediaId = mediaId,
-                //    ToUserName = message.ToUserName
-                //};
-
-                //await _connector.PostMessage(mediaMessage);
                 await _connector.PostMessage(message);
                 return Ok(SUCCESS);
             }
