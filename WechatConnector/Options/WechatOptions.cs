@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DimsumBot.Model.Shared.Wechat;
+using System;
 
 namespace WechatConnector.Options
 {
@@ -10,5 +11,8 @@ namespace WechatConnector.Options
         public string TokenURI { get; set; }
         public string CustomerEndpoint { get; set; }
         public string MediaUploadEndpoint { get; set; }
+        public string MenuUploadEndpoint { get; set; }
+        public bool UpdateMenuOnRun { get; set; }
+        public string DefaultMenu { get; set; }
     }
 }

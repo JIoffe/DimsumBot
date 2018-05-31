@@ -81,7 +81,6 @@ namespace WechatConnector.Controllers
         [HttpPost]
         public async Task<IActionResult> Post()
         {
-            //var r = Request;
             //Immediately returns a "success" OK response back to We Chat.
             //Although this one is directly calling the DirectLine, we could
             //route this through an auxiliary connector as well.
@@ -95,8 +94,14 @@ namespace WechatConnector.Controllers
                 {
                     var incomingMessage = XmlUtils.Deserialize<WechatMessage>(xml);
 
+                    if (incomingMessage.isUnsubscribeEvent())
+                    {
+                        //Maybe log some analytics in a real app, archive the dialog history
+                        return;
+                    }
+
                     var deviceRegistration = await _deviceRegistrar.GetDeviceRegistrationAsync(incomingMessage.FromUserName, DIRECTLINE_CHANNEL, WECHAT_SUBCHANNEL);
-                    if(deviceRegistration == null)
+                    if (deviceRegistration == null)
                     {
                         //Not registered - create a new one!
                         var conversation = await _directLineConnector.StartConversationAsync();
@@ -110,8 +115,23 @@ namespace WechatConnector.Controllers
                         await _directLineConnector.JoinConversationAsync(conversation.ConversationId, incomingMessage.FromUserName, WECHAT_SUBCHANNEL);
                     }
 
-                    await _directLineConnector.PostAsync(deviceRegistration.ConversationId, incomingMessage.Content, userId: incomingMessage.FromUserName, subchannel: WECHAT_SUBCHANNEL);
-                }catch(Exception ex)
+                    if (incomingMessage.isSubscribeEvent())
+                    {
+                        //We can respond to new conversations in the BotFramework
+                        //end of the equation as well. However, if we're not cleaning up
+                        //the references we might keep the conversation going inbetween subscriptions
+                        await PostWelcomeMessageAsync(incomingMessage);
+                        return;
+                    }
+
+                    if (incomingMessage.MessageType == WechatMessageTypes.TEXT || incomingMessage.isClickEvent())
+                    {
+                        string s = incomingMessage.MessageType == WechatMessageTypes.TEXT ? incomingMessage.Content : incomingMessage.EventKey;
+                        await _directLineConnector.PostAsync(deviceRegistration.ConversationId, s, userId: incomingMessage.FromUserName, subchannel: WECHAT_SUBCHANNEL);
+
+                    }
+                }
+                catch(Exception ex)
                 {
                     //TODO - Post some failure notice to the user
                     _logger.LogError(ex, "Could not post message to direct line");
@@ -154,6 +174,14 @@ namespace WechatConnector.Controllers
                 _logger.LogError(ex, errorMessage);
                 return StatusCode(500, errorMessage);
             }
+        }
+
+        private async Task PostWelcomeMessageAsync(WechatMessage incomingMessage)
+        {
+            var wechatMessage = incomingMessage.CreateReply();
+            wechatMessage.MessageType = WechatMessageTypes.TEXT;
+            wechatMessage.Content = "Thank you for subscribing! I am the Dim Sum Master! Please ask me about some different types of dim sum. I learn about new dim sum everyday, so check again later if I don't recognize one!";
+            await _connector.PostMessage(wechatMessage);
         }
     }
 }

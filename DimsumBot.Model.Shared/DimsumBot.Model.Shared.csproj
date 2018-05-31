@@ -46,6 +46,8 @@
     <Compile Include="ChannelData.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Wechat\Menu.cs" />
+    <Compile Include="Wechat\MenuItem.cs" />
     <Compile Include="Wechat\WechatArticle.cs" />
     <Compile Include="Wechat\WechatMessage.cs" />
     <Compile Include="Wechat\WechatMessageConverter.cs" />

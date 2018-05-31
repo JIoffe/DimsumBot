@@ -51,7 +51,7 @@ namespace WechatConnector.Client
                 var boundaryStr = Guid.NewGuid().ToString();
                 var token = await GetOrRefreshToken();
 
-                //Getting this to work before using a singleton httpclient
+                //Getting this to work before using a singleton httpclient or HttpClientFactory in 2.1
                 var handler = new HttpClientHandler();
                 handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
 
@@ -98,6 +98,54 @@ namespace WechatConnector.Client
             {
                 _logger.LogError(e, "Could not upload media {0}", fileName);
                 return string.Empty;
+            }
+        }
+
+        public async Task UpdateDefaultMenu()
+        {
+            if(_options.UpdateMenuOnRun && !string.IsNullOrWhiteSpace(_options.DefaultMenu))
+            {
+                if (!File.Exists(_options.DefaultMenu))
+                {
+                    _logger.LogError("Tried to update menu but {0} does not exist", _options.DefaultMenu);
+                    return;
+                }
+
+                var json = await File.ReadAllTextAsync(_options.DefaultMenu);
+                var menu = JsonConvert.DeserializeObject<Menu>(json);
+                await UploadMenu(menu);
+            }
+        }
+
+        public async Task UploadMenu(Menu menu)
+        {
+            try
+            {
+                var token = await GetOrRefreshToken();
+                var handler = new HttpClientHandler();
+                handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+
+                using (var client = new HttpClient(handler))
+                {
+                    var uriBuilder = new UriBuilder(_options.MenuUploadEndpoint);
+                    uriBuilder.Query = $"access_token={token.AccessToken}";
+
+                    var content = new StringContent(JsonConvert.SerializeObject(menu), Encoding.UTF8);
+                    var response = await client.PostAsync(uriBuilder.Uri, content);
+                    response.EnsureSuccessStatusCode();
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    var responseMessage = JsonConvert.DeserializeObject<WechatGenericResponse>(json);
+
+                    if(responseMessage.ErrorCode != 0)
+                    {
+                        throw new ArgumentException($"Received Failure Code from WeChat: {responseMessage.ErrorCode} - {responseMessage.ErrorMessage}");
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e, "Could not upload menu");
             }
         }
 

@@ -7,5 +7,7 @@ namespace WechatConnector.Client
     {
         Task PostMessage(WechatMessage msg);
         Task<string> UploadMedia(string type, string fileName, string mimeType, byte[] mediaBytes);
+        Task UploadMenu(Menu menu);
+        Task UpdateDefaultMenu();
     }
 }

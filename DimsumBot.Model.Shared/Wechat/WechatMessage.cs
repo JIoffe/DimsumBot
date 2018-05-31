@@ -45,6 +45,16 @@ namespace DimsumBot.Model.Shared.Wechat
         [XmlIgnore]
         public string Content { get; set; }
         /// <summary>
+        /// String name of the event (should only be click)
+        /// </summary>
+        [XmlIgnore]
+        public string Event { get; set; }
+        /// <summary>
+        /// The text payload of the event
+        /// </summary>
+        [XmlIgnore]
+        public string EventKey { get; set; }
+        /// <summary>
         /// Url of image to display
         /// </summary>
         [XmlIgnore]
@@ -73,6 +83,19 @@ namespace DimsumBot.Model.Shared.Wechat
             set => FromUserName = value.Value;
         }
 
+        [XmlElement("Event")]
+        public XmlCDataSection EventCDATA
+        {
+            get => new XmlDocument().CreateCDataSection(Event);
+            set => Event = value.Value;
+        }
+
+        [XmlElement("EventKey")]
+        public XmlCDataSection EventKeyCDATA
+        {
+            get => new XmlDocument().CreateCDataSection(EventKey);
+            set => EventKey = value.Value;
+        }
 
         [XmlElement("MsgType")]
         public XmlCDataSection MessageTypeCDATA
@@ -100,5 +123,9 @@ namespace DimsumBot.Model.Shared.Wechat
             get => new XmlDocument().CreateCDataSection(MediaId);
             set => MediaId = value.Value;
         }
+
+        public bool isUnsubscribeEvent() => MessageType == WechatMessageTypes.EVENT && (Event?.Equals("unsubscribe", StringComparison.InvariantCultureIgnoreCase) ?? false);
+        public bool isSubscribeEvent() => MessageType == WechatMessageTypes.EVENT && (Event?.Equals("subscribe", StringComparison.InvariantCultureIgnoreCase) ?? false);
+        public bool isClickEvent() => MessageType == WechatMessageTypes.EVENT && (Event?.Equals("click", StringComparison.InvariantCultureIgnoreCase) ?? false);
     }
 }

@@ -92,7 +92,7 @@ namespace DimsumBot
                 var luisAppId = ConfigurationManager.AppSettings["LuisAppId"];
                 var luisKey = ConfigurationManager.AppSettings["LuisSubscriptionKey"];
 
-                var luisModel = new LuisModelAttribute(luisAppId, luisKey, threshold: 0.6D);
+                var luisModel = new LuisModelAttribute(luisAppId, luisKey, threshold: 0.8D);
                 return new LuisService(luisModel);
             }).As<ILuisService>().InstancePerLifetimeScope();
 

@@ -22,17 +22,20 @@ using NLog.Extensions.Logging;
 using NLog.Web;
 using WechatConnector.Client;
 using WechatConnector.Cryptography;
+using WechatConnector.Extensions;
 using WechatConnector.Options;
 
 namespace WechatConnector
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env, IConfiguration configuration)
         {
+            HostingEnvironment = env;
             Configuration = configuration;
         }
 
+        public IHostingEnvironment HostingEnvironment { get; }
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -49,18 +52,10 @@ namespace WechatConnector
             services.AddScoped<IWechatClient, WechatClient>();
             services.AddScoped<IDirectLineConnector, DirectLineConnector>();
             services.AddScoped<IDeviceRegistrar, DocumentDBDeviceRegistrar>();
-
-            //Disable app insights telemtry symbols on requests
-            //var module = services.FirstOrDefault(t => t.ImplementationFactory?.GetType() == typeof(Func<IServiceProvider, DependencyTrackingTelemetryModule>));
-            //if (module != null)
-            //{
-            //    services.Remove(module);
-            //    services.AddSingleton<ITelemetryModule>(provider => new DependencyTrackingTelemetryModule() { SetComponentCorrelationHttpHeaders = false });
-            //}
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public async void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IWechatClient wechatClient)
         {
             loggerFactory.AddNLog();
 
@@ -94,6 +89,10 @@ namespace WechatConnector
                 domains.Add("file.api.wechat.com");
                 domains.Add("file.api.weixin.qq.com");
             }
+
+
+            //Setup the menu if we have to
+            await wechatClient.UpdateDefaultMenu();
         }
 
         private void ConfigureOptions(IServiceCollection services)
